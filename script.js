@@ -1,11 +1,10 @@
-const NUMBERS_COUNT = 10;
-const DELAY = 300;
-const delay = async (ms) => await new Promise(resolve => setTimeout(resolve, ms));
-let columns = [];
+// Количество элементов
+let NUMBERS_COUNT = 10;
+
 class Column {
+
     _number = 0;
-    _less = false;
-    _larger = false;
+
     constructor(container, number) {
 
         this.column = document.createElement('div');
@@ -24,166 +23,550 @@ class Column {
         this.column.append(this.line);
         this.column.append(this.infoNumber);
         container.append(this.column);
+
     }
 
-    setStatus(status) {
-        this.resetStatus();
+    // Добавление класса
+    setClass(status) {
+
         this.column.classList.add(status);
-        if (status == 'larger') this.flash();
+
     }
 
-    resetStatus() {
+    // Удаление класса
+    resetClass() {
+
         this.column.classList.remove('current');
-        this.column.classList.remove('larger');
-        this.column.classList.remove('less');
+
     }
 
+    // Подсвечивание колонок
     flash() {
-        this.column.classList.remove('flash');
-        clearTimeout(this._timerFlash);
+
         this.column.classList.add('flash');
-        this._timerFlash = setTimeout(() => {
+
+        setTimeout(() => {
+
             this.column.classList.remove('flash');
+
         }, 1000)
+
     }
 
+    // Установка чисел каждому элементу
     set number(value) {
+
         this._number = value;
         this.lineValue.style.height = (value * 100 / NUMBERS_COUNT) + "%";
-        if (NUMBERS_COUNT <= 40) {
+
+        if (NUMBERS_COUNT <= 100) {
+
             this.infoNumber.textContent = this.number;
+
         }
+
     }
 
+    // Получение значения элемента
     get number() {
+
         return this._number;
+
     }
+
 }
 
+// Создание элементов HTML
+const info = document.createElement('div'); // бокс с кнопками, количеством элементов и скоростью
+const chartBox = document.createElement('div'); // бокс с сортировкой
+const btnBox = document.createElement('div'); // бокс с кнопками
+const countBox = document.createElement('div'); // бокс с количеством элементов и скоростью
+const startBtn = document.createElement('button'); // кнопка старт
+const restartBtn = document.createElement('button'); // кнопка перезапустить
+const mixBtn = document.createElement('button'); // кнопка перемешать
+const numbersCountText = document.createElement('p'); // текст количество элементов
+const speedText = document.createElement('p'); // текст изменение скорости
+const countNumbersBox = document.createElement('div'); // бокс для изменения количества элементов
+const minBtnNumberCount = document.createElement('button'); // кнопка уменьшить количество элементов
+const numbersCount = document.createElement('input'); // количество элементов
+const maxBtnNumberCount = document.createElement('button'); // кнопка увеличить количество элементов
+const speedBox = document.createElement('div'); // бокс для изменения скорости
+const minBtnSpeed = document.createElement('button'); // кнопка уменьшить скорости
+const speed = document.createElement('input'); // скорости
+const maxBtnSpeed = document.createElement('button'); // кнопка увеличить скорости
+
+// Создание сортбокса
 function createSortBox(container, sortFunction) {
-    const chartBox = document.createElement('div');
-    const infoBox = document.createElement('div');
-    const leftInfo = document.createElement('div');
-    const startBtn = document.createElement('button');
 
-    infoBox.classList.add('info-box');
+    // Добавление классов
+    info.classList.add('info');
+    btnBox.classList.add('btn-box');
+    countBox.classList.add('count-box');
     chartBox.classList.add('box');
-    leftInfo.classList.add('left-info');
     startBtn.classList.add('start-btn');
+    restartBtn.classList.add('restart-btn');
+    mixBtn.classList.add('mix-btn');
+    countNumbersBox.classList.add('count-numbers-box');
+    numbersCountText.classList.add('numbers-count-text');
+    minBtnNumberCount.classList.add('min-btn-numbers-count');
+    numbersCount.classList.add('numbers-count');
+    maxBtnNumberCount.classList.add('max-btn-numbers-count');
+    speedBox.classList.add('speed-box');
+    speedText.classList.add('speed-text');
+    minBtnSpeed.classList.add('min-btn-speed');
+    speed.classList.add('speed');
+    maxBtnSpeed.classList.add('max-btn-speed');
 
+    // Задание значений
     startBtn.textContent = 'Старт';
+    restartBtn.textContent = 'Перезапустить';
+    mixBtn.textContent = 'Перемешать';
+    numbersCountText.textContent = 'Количество элементов: ';
+    speedText.textContent = 'Скорость: ';
+    minBtnNumberCount.textContent = '-'
+    minBtnSpeed.textContent = '-'
+    numbersCount.value = '10';
+    speed.value = '1';
+    numbersCount.min = '10';
+    speed.min = '0.25';
+    numbersCount.max = '100';
+    speed.max = '2';
+    numbersCount.readOnly = true;
+    speed.readOnly = true;
+    numbersCount.type = 'number';
+    speed.type = 'number';
+    maxBtnNumberCount.textContent = '+'
+    maxBtnSpeed.textContent = '+'
 
-    leftInfo.append(startBtn);
-    infoBox.append(leftInfo);
-    container.append(infoBox);
+    // Уменьшение количества элементов в массиве
+    minBtnNumberCount.addEventListener('click', function () {
+
+        if (numbersCount.value > 10) {
+
+            numbersCount.value--;
+
+        }
+
+        setNumbersCount();
+
+    })
+
+    // Уменьшение скорости
+    minBtnSpeed.addEventListener('click', function () {
+
+        if (speed.value > 0.25) {
+
+            speed.value -= 0.25;
+
+        }
+
+    })
+
+    // Увеличение количества элементов в массиве
+    maxBtnNumberCount.addEventListener('click', function () {
+
+        if (numbersCount.value < 100) {
+
+            numbersCount.value++;
+
+        }
+
+        setNumbersCount();
+
+    })
+
+    // Увеличение скорости
+    maxBtnSpeed.addEventListener('click', function () {
+
+        if (speed.value < 2) {
+
+            speed.value = Number(speed.value) + 0.25;
+
+        }
+
+    })
+
+    // Добавление созданных элементов HTML на страницу
+    btnBox.append(startBtn);
+    btnBox.append(restartBtn);
+    btnBox.append(mixBtn);
+    countBox.append(numbersCountText);
+    countBox.append(countNumbersBox);
+    countBox.append(speedText);
+    countBox.append(speedBox);
+    countNumbersBox.append(minBtnNumberCount);
+    countNumbersBox.append(numbersCount);
+    countNumbersBox.append(maxBtnNumberCount);
+    speedBox.append(minBtnSpeed);
+    speedBox.append(speed);
+    speedBox.append(maxBtnSpeed);
+    info.append(btnBox);
+    info.append(countBox);
+    container.append(info);
     container.append(chartBox);
 
-    const numbers = [];
-    for (let i = 1; i <= NUMBERS_COUNT; i++) {
-        numbers.push(i);
+    // Массивы с числами, колонками, копиями колонок
+    let numbers = [];
+    let columns = [];
+    let copyColumns = [];
+
+    newColumns();
+
+    // Перерисовка колонок
+    function newColumns() {
+
+        numbers = [];
+
+        for (let i = 1; i <= NUMBERS_COUNT; i++) {
+
+            numbers.push(i);
+
+        }
+
+        numbers.sort(() => Math.random() - 0.5);
+
+        columns = [];
+        copyColumns = [];
+
+        chartBox.setAttribute('style', `grid-template-columns: repeat(${NUMBERS_COUNT}, 1fr);`);
+
+        numbers.forEach(element => {
+
+            columns.push(new Column(chartBox, element));
+            copyColumns.push(element);
+
+        });
+
     }
-    numbers.sort(() => Math.random() - 0.5);
 
-    chartBox.setAttribute('style', `grid-template-columns: repeat(${NUMBERS_COUNT}, 1fr);`);
-
-    numbers.forEach(number => {
-        columns.push(new Column(chartBox, number));
-    });
-
+    // Кнопка старт
     startBtn.addEventListener('click', function () {
+
         startBtn.disabled = true;
+        restartBtn.disabled = true;
+        mixBtn.disabled = true;
         sortFunction(columns);
+
     })
-}
 
-function finishFlash(columns) {
-    for (const column of columns) {
-        column.flash();
+    // Кнопка перезапустить
+    restartBtn.addEventListener('click', async function () {
+
+        startBtn.disabled = true;
+        restartBtn.disabled = true;
+        mixBtn.disabled = true;
+
+        const promise = new Promise((resolve) => {
+
+            for (let i = 0; i < copyColumns.length; i++) {
+
+                columns[i].number = copyColumns[i];
+
+            }
+
+            setTimeout(() => {
+
+                resolve()
+
+            }, 1000);
+
+        })
+
+        await promise;
+
+        sortFunction(columns);
+
+    })
+
+    // Кнопка перемешать
+    mixBtn.addEventListener('click', function () {
+
+        numbers.sort(() => Math.random() - 0.5);
+
+        for (let i = 0; i < numbers.length; i++) {
+
+            columns[i].number = numbers[i];
+            copyColumns[i] = numbers[i];
+
+        }
+
+    })
+
+    // Задание количества колонок
+    function setNumbersCount() {
+
+        NUMBERS_COUNT = document.getElementsByClassName("numbers-count")[0].value;
+
+        chartBox.removeAttribute('style');
+
+        const columnsBox = document.querySelectorAll('.column');
+
+        columnsBox.forEach(function (elem) {
+
+            elem.parentNode.removeChild(elem);
+
+        });
+
+        newColumns();
+
     }
+
+
 }
 
-function mergeSort(array, startIndex, endIndex) {
+// Задание скорости
+function setSpeed() {
+
+    return 1000 / document.getElementsByClassName("speed")[0].value;
+
+}
+
+// Разделение массива
+async function mergeSort(array, startIndex, columns) {
+
+    const promise1 = new Promise((resolve) => {
+
+        array.forEach(element => {
+
+            columns.find(el => el.number === element).setClass('current');
+
+        });
+
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed());
+
+    })
+
+    await promise1;
+
     if (array.length < 2) return array;
+
     const lengthArray1 = Math.trunc(array.length / 2);
     const array1 = array.splice(0, lengthArray1);
 
-    let numbers = [];
-    columns.forEach(element => {
-        numbers.push(element.number);
-    });
-    return merge(mergeSort(array1, startIndex, startIndex + lengthArray1), mergeSort(array, startIndex + lengthArray1, endIndex), startIndex, endIndex);
+    const promise2 = new Promise((resolve) => {
+
+        array1.forEach(element => {
+
+            columns.find(el => el.number === element).resetClass();
+
+        });
+
+        array.forEach(element => {
+
+            columns.find(el => el.number === element).resetClass();
+
+        });
+
+        setTimeout(() => {
+
+            resolve(mergeSort(array1, startIndex, columns));
+
+        }, setSpeed());
+
+    })
+
+    let left = await promise2;
+
+    const promise3 = new Promise((resolve) => {
+
+        array1.forEach(element => {
+
+            columns.find(el => el.number === element).resetClass();
+
+        });
+
+        array.forEach(element => {
+
+            columns.find(el => el.number === element).resetClass();
+
+        });
+
+        setTimeout(() => {
+
+            resolve(mergeSort(array, startIndex + lengthArray1, columns));
+
+        }, setSpeed());
+
+    })
+
+    let right = await promise3;
+
+    return merge(left, right, startIndex, columns);
+
 }
 
-function merge(array1, array2, startIndex, endIndex) {
-    // array1.forEach(element => {
-    //     element.resetStatus();
-    // });
-    // await delay(DELAY / 2);
+// Слияние двух массивов
+async function merge(array1, array2, startIndex, columns) {
+
+    const promise1 = new Promise((resolve) => {
+
+        array1.forEach(element => {
+
+            columns.find(el => el.number === element).setClass('current');
+
+        });
+
+        array2.forEach(element => {
+
+            columns.find(el => el.number === element).setClass('current');
+
+        });
+
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed());
+
+    })
+
+    await promise1;
+
     let mergeArray = [];
 
     while (array1.length && array2.length) {
-        if (array1[0].number < array2[0].number) {
-            // array1[0].setStatus('less');
-            // array2[0].setStatus('larger');
+
+        if (array1[0] < array2[0]) {
+
             mergeArray.push(array1.shift());
+
         } else {
+
             mergeArray.push(array2.shift());
+
         }
+
     }
+
     if (array1.length) {
+
         while (array1.length) {
+
             mergeArray.push(array1.shift());
+
         }
+
     }
+
     if (array2.length) {
+
         while (array2.length) {
+
             mergeArray.push(array2.shift());
+
         }
+
     }
-    const left = columns.slice(0, startIndex);
-    const middle = [...mergeArray];
-    const right = columns.slice(endIndex, columns.length);
+
+    const promise2 = new Promise((resolve) => {
+
+        mergeArray.forEach(element => {
+
+            if (element != columns[startIndex].number) {
+
+                columns[startIndex].number = element;
+
+            }
+
+            startIndex++;
+
+        });
+
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed());
+
+    })
+
+    await promise2;
+
+    const promise3 = new Promise((resolve) => {
+
+        mergeArray.forEach(element => {
+
+            columns.find(el => el.number === element).resetClass();
+
+        });
+
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed());
+
+    })
+
+    await promise3;
+
+    startIndex -= mergeArray.length;
+
     let numbers = [];
-    columns = [...left, ...middle, ...right];
+
     columns.forEach(element => {
+
         numbers.push(element.number);
+
     });
+
     console.log(numbers);
 
     return mergeArray;
+
+}
+
+// Подсвечивание всех колонок после завершения сортировки
+function finishFlash(columns) {
+
+    columns.forEach(element => {
+
+        element.flash();
+
+    });
+
+    startBtn.disabled = false;
+    restartBtn.disabled = false;
+    mixBtn.disabled = false;
+
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    createSortBox(document.getElementById('merge_sort'), async function () {
 
-        const array = columns.slice();
-        mergeSort(array, 0, array.length);
-        // for (let j = columns.length - 1; j > 0; j--) {
-        //     for (let i = 0; i < j; i++) {
-        //         const A = columns[i];
-        //         const B = columns[i + 1];
+    createSortBox(document.getElementById('merge_sort'), async (columns) => {
 
-        //         A.setStatus('current');
-        //         B.setStatus('current');
+        const array = [];
 
-        //         await delay(DELAY / 2);
-        //         if (A.number > B.number) {
-        //             const temp = A.number;
-        //             A.number = B.number;
-        //             B.number = temp;
+        columns.forEach(element => {
 
-        //             B.setStatus('larger');
-        //             A.setStatus('less');
-        //         } else {
-        //             A.resetStatus();
-        //             B.resetStatus();
-        //         }
+            array.push(element.number);
 
-        //         await delay(DELAY);
-        //     }
-        // }
+        });
+
+        let numbers = [];
+
+        array.forEach(element => {
+
+            numbers.push(element);
+
+        });
+
+        console.log(numbers);
+
+        const promise = new Promise((resolve) => {
+
+            resolve(mergeSort(array, 0, columns));
+
+        })
+
+        await promise;
 
         finishFlash(columns);
 
     })
+
 })

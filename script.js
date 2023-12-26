@@ -76,8 +76,66 @@ class Column {
 
 }
 
+class Code {
+
+    _number = 0;
+    _text = '';
+
+    constructor(container, number, text) {
+
+        this.string = document.createElement('div');
+        this.stringNumber = document.createElement('span');
+        this.stringText = document.createElement('span');
+
+        this.string.classList.add('string');
+        this.stringNumber.classList.add('string-number');
+        this.stringText.classList.add('string-text');
+
+        this.number = number;
+        this.text = text;
+
+        this.string.append(this.stringNumber);
+        this.string.append(this.stringText);
+        container.append(this.string);
+
+    }
+
+    set number(value) {
+
+        this._number = value;
+
+        this.stringNumber.textContent = this.number;
+
+    }
+
+    // Получение значения элемента
+    get number() {
+
+        return this._number;
+
+    }
+
+    set text(value) {
+
+        this._text = value;
+
+        this.stringText.textContent = this.text;
+
+    }
+
+    // Получение значения элемента
+    get text() {
+
+        return this._text;
+
+    }
+
+}
+
 // Создание элементов HTML
 const info = document.createElement('div'); // бокс с кнопками, количеством элементов и скоростью
+const boxContainer = document.createElement('div'); // обертка сортировки
+const code = document.createElement('div'); // бокс с кодом алгоритма
 const chartBox = document.createElement('div'); // бокс с сортировкой
 const btnBox = document.createElement('div'); // бокс с кнопками
 const countBox = document.createElement('div'); // бокс с количеством элементов и скоростью
@@ -100,6 +158,8 @@ function createSortBox(container, sortFunction) {
 
     // Добавление классов
     info.classList.add('info');
+    code.classList.add('code');
+    boxContainer.classList.add('box-container');
     btnBox.classList.add('btn-box');
     countBox.classList.add('count-box');
     chartBox.classList.add('box');
@@ -129,14 +189,15 @@ function createSortBox(container, sortFunction) {
     speed.value = '1';
     numbersCount.min = '10';
     speed.min = '0.25';
-    numbersCount.max = '100';
+    numbersCount.max = '50';
     speed.max = '2';
-    numbersCount.readOnly = true;
+    // numbersCount.readOnly = true;
     speed.readOnly = true;
     numbersCount.type = 'number';
     speed.type = 'number';
-    maxBtnNumberCount.textContent = '+'
-    maxBtnSpeed.textContent = '+'
+    maxBtnNumberCount.textContent = '+';
+    maxBtnSpeed.textContent = '+';
+    // code.textContent = 'qwertyuiop[]asdfghjkl;\nqwerty';
 
     // Уменьшение количества элементов в массиве
     minBtnNumberCount.addEventListener('click', function () {
@@ -144,10 +205,9 @@ function createSortBox(container, sortFunction) {
         if (numbersCount.value > 10) {
 
             numbersCount.value--;
+            setNumbersCount();
 
         }
-
-        setNumbersCount();
 
     })
 
@@ -165,13 +225,12 @@ function createSortBox(container, sortFunction) {
     // Увеличение количества элементов в массиве
     maxBtnNumberCount.addEventListener('click', function () {
 
-        if (numbersCount.value < 100) {
+        if (numbersCount.value < 50) {
 
             numbersCount.value++;
+            setNumbersCount();
 
         }
-
-        setNumbersCount();
 
     })
 
@@ -202,8 +261,10 @@ function createSortBox(container, sortFunction) {
     speedBox.append(maxBtnSpeed);
     info.append(btnBox);
     info.append(countBox);
+    boxContainer.append(code);
+    boxContainer.append(chartBox);
     container.append(info);
-    container.append(chartBox);
+    container.append(boxContainer);
 
     // Массивы с числами, колонками, копиями колонок
     let numbers = [];
@@ -236,6 +297,48 @@ function createSortBox(container, sortFunction) {
             copyColumns.push(element);
 
         });
+
+    }
+
+    mergeSortCode();
+
+    function mergeSortCode() {
+
+        stringsOfCode = [];
+
+        i = 1;
+
+        stringsOfCode.push(new Code(code, i++, ".__split(array) {"));
+        stringsOfCode.push(new Code(code, i++, "._____if (array.length < 2) return array;"));
+        stringsOfCode.push(new Code(code, i++, "._____lengthArray1 = array.length / 2;"));
+        stringsOfCode.push(new Code(code, i++, "._____array1 = array.copy(0, lengthArray1);"));
+        stringsOfCode.push(new Code(code, i++, "._____array2 = array.copy(lengthArray1, -1);"));
+        stringsOfCode.push(new Code(code, i++, "._____left = mergeSort(array1)"));
+        stringsOfCode.push(new Code(code, i++, "._____right = mergeSort(array2"));
+        stringsOfCode.push(new Code(code, i++, "._____return merge(left, right);"));
+        stringsOfCode.push(new Code(code, i++, ".__}"));
+        stringsOfCode.push(new Code(code, i++, "._______________________________________________"));
+        stringsOfCode.push(new Code(code, i++, ".__merge(left, right) {"));
+        stringsOfCode.push(new Code(code, i++, "._____mergeArray = [];"));
+        stringsOfCode.push(new Code(code, i++, "._____while (left.length && right.length) {"));
+        stringsOfCode.push(new Code(code, i++, "._________if (left[0] < right[0]) {"));
+        stringsOfCode.push(new Code(code, i++, "._____________mergeArray.push(left.popFirst());"));
+        stringsOfCode.push(new Code(code, i++, "._________} else {"));
+        stringsOfCode.push(new Code(code, i++, "._____________mergeArray.push(right.popFirst());"));
+        stringsOfCode.push(new Code(code, i++, "._________}"));
+        stringsOfCode.push(new Code(code, i++, "._____}"));
+        stringsOfCode.push(new Code(code, i++, "._____if (left.length) {"));
+        stringsOfCode.push(new Code(code, i++, "._________while (left.length) {"));
+        stringsOfCode.push(new Code(code, i++, "._____________mergeArray.push(left.popFirst());"));
+        stringsOfCode.push(new Code(code, i++, "._________}"));
+        stringsOfCode.push(new Code(code, i++, "._____}"));
+        stringsOfCode.push(new Code(code, i++, "._____if (right.length) {"));
+        stringsOfCode.push(new Code(code, i++, "._________while (right.length) {"));
+        stringsOfCode.push(new Code(code, i++, "._____________mergeArray.push(right.popFirst());"));
+        stringsOfCode.push(new Code(code, i++, "._________}"));
+        stringsOfCode.push(new Code(code, i++, "._____}"));
+        stringsOfCode.push(new Code(code, i++, "._____return mergeArray;"));
+        stringsOfCode.push(new Code(code, i++, "._}"));
 
     }
 
@@ -310,7 +413,6 @@ function createSortBox(container, sortFunction) {
         newColumns();
 
     }
-
 
 }
 

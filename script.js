@@ -34,9 +34,9 @@ class Column {
     }
 
     // Удаление класса
-    resetClass() {
+    resetClass(status) {
 
-        this.column.classList.remove('current');
+        this.column.classList.remove(status);
 
     }
 
@@ -136,6 +136,8 @@ class Code {
 const info = document.createElement('div'); // бокс с кнопками, количеством элементов и скоростью
 const boxContainer = document.createElement('div'); // обертка сортировки
 const code = document.createElement('div'); // бокс с кодом алгоритма
+const box = document.createElement('div'); // бокс для двух сортировок
+const upBox = document.createElement('div'); // бокс для дополнительной части массива
 const chartBox = document.createElement('div'); // бокс с сортировкой
 const btnBox = document.createElement('div'); // бокс с кнопками
 const countBox = document.createElement('div'); // бокс с количеством элементов и скоростью
@@ -163,6 +165,8 @@ function createSortBox(container, sortFunction) {
     btnBox.classList.add('btn-box');
     countBox.classList.add('count-box');
     chartBox.classList.add('box');
+    box.classList.add('box2');
+    upBox.classList.add('up-box');
     startBtn.classList.add('start-btn');
     restartBtn.classList.add('restart-btn');
     mixBtn.classList.add('mix-btn');
@@ -261,14 +265,17 @@ function createSortBox(container, sortFunction) {
     speedBox.append(maxBtnSpeed);
     info.append(btnBox);
     info.append(countBox);
-    boxContainer.append(code);
-    boxContainer.append(chartBox);
+    // boxContainer.append(code);  
+    box.append(upBox);
+    box.append(chartBox);
+    boxContainer.append(box);
     container.append(info);
     container.append(boxContainer);
 
     // Массивы с числами, колонками, копиями колонок
     let numbers = [];
     let columns = [];
+    let columnsUp = [];
     let copyColumns = [];
 
     newColumns();
@@ -287,16 +294,23 @@ function createSortBox(container, sortFunction) {
         numbers.sort(() => Math.random() - 0.5);
 
         columns = [];
+        columnsUp = [];
         copyColumns = [];
 
+        upBox.setAttribute('style', `grid-template-columns: repeat(${NUMBERS_COUNT}, 1fr);`);
         chartBox.setAttribute('style', `grid-template-columns: repeat(${NUMBERS_COUNT}, 1fr);`);
 
         numbers.forEach(element => {
 
             columns.push(new Column(chartBox, element));
+            columnsUp.push(new Column(upBox, element));
             copyColumns.push(element);
 
         });
+
+        columnsUp.forEach(element => {
+            element.setClass('up');
+        })
 
     }
 
@@ -348,7 +362,7 @@ function createSortBox(container, sortFunction) {
         startBtn.disabled = true;
         restartBtn.disabled = true;
         mixBtn.disabled = true;
-        sortFunction(columns);
+        sortFunction(columns, columnsUp);
 
     })
 
@@ -377,7 +391,7 @@ function createSortBox(container, sortFunction) {
 
         await promise;
 
-        sortFunction(columns);
+        sortFunction(columns, columnsUp);
 
     })
 
@@ -389,6 +403,7 @@ function createSortBox(container, sortFunction) {
         for (let i = 0; i < numbers.length; i++) {
 
             columns[i].number = numbers[i];
+            columnsUp[i].number = numbers[i];
             copyColumns[i] = numbers[i];
 
         }
@@ -424,7 +439,7 @@ function setSpeed() {
 }
 
 // Разделение массива
-async function mergeSort(array, startIndex, columns) {
+async function mergeSort(array, startIndex, columns, columnsUp) {
 
     const promise1 = new Promise((resolve) => {
 
@@ -453,19 +468,19 @@ async function mergeSort(array, startIndex, columns) {
 
         array1.forEach(element => {
 
-            columns.find(el => el.number === element).resetClass();
+            columns.find(el => el.number === element).resetClass('current');
 
         });
 
         array.forEach(element => {
 
-            columns.find(el => el.number === element).resetClass();
+            columns.find(el => el.number === element).resetClass('current');
 
         });
 
         setTimeout(() => {
 
-            resolve(mergeSort(array1, startIndex, columns));
+            resolve(mergeSort(array1, startIndex, columns, columnsUp));
 
         }, setSpeed());
 
@@ -477,19 +492,19 @@ async function mergeSort(array, startIndex, columns) {
 
         array1.forEach(element => {
 
-            columns.find(el => el.number === element).resetClass();
+            columns.find(el => el.number === element).resetClass('current');
 
         });
 
         array.forEach(element => {
 
-            columns.find(el => el.number === element).resetClass();
+            columns.find(el => el.number === element).resetClass('current');
 
         });
 
         setTimeout(() => {
 
-            resolve(mergeSort(array, startIndex + lengthArray1, columns));
+            resolve(mergeSort(array, startIndex + lengthArray1, columns, columnsUp));
 
         }, setSpeed());
 
@@ -497,24 +512,40 @@ async function mergeSort(array, startIndex, columns) {
 
     let right = await promise3;
 
-    return merge(left, right, startIndex, columns);
+    return merge(left, right, startIndex, columns, columnsUp);
 
 }
 
+function changeUp(columns, columnsUp, i) {
+    columns.find(el => el.number === i).setClass('up');
+    columnsUp.find(el => el.number === i).resetClass('up');
+}
+
+function changeUpBack(columns, columnsUp, i) {
+    columns.find(el => el.number === i).resetClass('up');
+    columnsUp.find(el => el.number === i).setClass('up');
+}
+
 // Слияние двух массивов
-async function merge(array1, array2, startIndex, columns) {
+async function merge(array1, array2, startIndex, columns, columnsUp) {
 
     const promise1 = new Promise((resolve) => {
 
         array1.forEach(element => {
+            changeUp(columns, columnsUp, element);
 
-            columns.find(el => el.number === element).setClass('current');
+            // columns.find(el => el.number === element).setClass('up');
+            // columns.find(el => el.number === element).setClass('current');
+            // columnsUp.find(el => el.number === element).resetClass('up');
 
         });
 
         array2.forEach(element => {
+            changeUp(columns, columnsUp, element);
 
-            columns.find(el => el.number === element).setClass('current');
+            // columns.find(el => el.number === element).setClass('up');
+            // columns.find(el => el.number === element).setClass('current');
+            // columnsUp.find(el => el.number === element).resetClass('up');
 
         });
 
@@ -564,19 +595,22 @@ async function merge(array1, array2, startIndex, columns) {
 
     }
 
-    const promise2 = new Promise((resolve) => {
+    const promise2 = new Promise(async (resolve) => {
 
-        mergeArray.forEach(element => {
-
-            if (element != columns[startIndex].number) {
-
-                columns[startIndex].number = element;
-
-            }
-
+        for (element in mergeArray) {
+            columns[startIndex].number = mergeArray[element];
             startIndex++;
+        }
+        for (element in mergeArray) {
+            const promise3 = new Promise((resolve) => {
+                changeUpBack(columns, columnsUp, mergeArray[element]);
+                setTimeout(() => {
+                    resolve();
+                }, setSpeed());
 
-        });
+            });
+            await promise3;
+        }
 
         setTimeout(() => {
 
@@ -588,31 +622,33 @@ async function merge(array1, array2, startIndex, columns) {
 
     await promise2;
 
-    const promise3 = new Promise((resolve) => {
+    // const promise3 = new Promise((resolve) => {
 
-        mergeArray.forEach(element => {
+    //     mergeArray.forEach(element => {
 
-            columns.find(el => el.number === element).resetClass();
+    //         columns.find(el => el.number === element).resetClass('current');
 
-        });
+    //     });
 
-        setTimeout(() => {
+    //     setTimeout(() => {
 
-            resolve();
+    //         resolve();
 
-        }, setSpeed());
+    //     }, setSpeed());
 
-    })
+    // })
 
-    await promise3;
+    // await promise3;
 
     startIndex -= mergeArray.length;
 
     let numbers = [];
-
+    let i = 0;
     columns.forEach(element => {
 
         numbers.push(element.number);
+        columnsUp[i].number = element.number;
+        i++;
 
     });
 
@@ -639,7 +675,7 @@ function finishFlash(columns) {
 
 document.addEventListener('DOMContentLoaded', function () {
 
-    createSortBox(document.getElementById('merge_sort'), async (columns) => {
+    createSortBox(document.getElementById('merge_sort'), async (columns, columnsUp) => {
 
         const array = [];
 
@@ -661,7 +697,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const promise = new Promise((resolve) => {
 
-            resolve(mergeSort(array, 0, columns));
+            resolve(mergeSort(array, 0, columns, columnsUp));
 
         })
 

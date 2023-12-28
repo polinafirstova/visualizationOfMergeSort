@@ -532,20 +532,14 @@ async function merge(array1, array2, startIndex, columns, columnsUp) {
     const promise1 = new Promise((resolve) => {
 
         array1.forEach(element => {
-            changeUp(columns, columnsUp, element);
 
-            // columns.find(el => el.number === element).setClass('up');
-            // columns.find(el => el.number === element).setClass('current');
-            // columnsUp.find(el => el.number === element).resetClass('up');
+            columns.find(el => el.number === element).setClass('current');
 
         });
 
         array2.forEach(element => {
-            changeUp(columns, columnsUp, element);
 
-            // columns.find(el => el.number === element).setClass('up');
-            // columns.find(el => el.number === element).setClass('current');
-            // columnsUp.find(el => el.number === element).resetClass('up');
+            columns.find(el => el.number === element).setClass('current');
 
         });
 
@@ -558,6 +552,27 @@ async function merge(array1, array2, startIndex, columns, columnsUp) {
     })
 
     await promise1;
+    const promise2 = new Promise((resolve) => {
+
+        array1.forEach(element => {
+
+            changeUp(columns, columnsUp, element);
+
+        });
+
+        array2.forEach(element => {
+
+            changeUp(columns, columnsUp, element);
+
+        });
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed());
+    })
+
+    await promise2;
 
     let mergeArray = [];
 
@@ -595,21 +610,21 @@ async function merge(array1, array2, startIndex, columns, columnsUp) {
 
     }
 
-    const promise2 = new Promise(async (resolve) => {
+    const promise3 = new Promise(async (resolve) => {
 
         for (element in mergeArray) {
             columns[startIndex].number = mergeArray[element];
             startIndex++;
         }
         for (element in mergeArray) {
-            const promise3 = new Promise((resolve) => {
+            const pr = new Promise((resolve) => {
                 changeUpBack(columns, columnsUp, mergeArray[element]);
                 setTimeout(() => {
                     resolve();
                 }, setSpeed());
 
             });
-            await promise3;
+            await pr;
         }
 
         setTimeout(() => {
@@ -620,25 +635,25 @@ async function merge(array1, array2, startIndex, columns, columnsUp) {
 
     })
 
-    await promise2;
+    await promise3;
 
-    // const promise3 = new Promise((resolve) => {
+    const promise4 = new Promise((resolve) => {
 
-    //     mergeArray.forEach(element => {
+        mergeArray.forEach(element => {
 
-    //         columns.find(el => el.number === element).resetClass('current');
+            columns.find(el => el.number === element).resetClass('current');
 
-    //     });
+        });
 
-    //     setTimeout(() => {
+        setTimeout(() => {
 
-    //         resolve();
+            resolve();
 
-    //     }, setSpeed());
+        }, setSpeed());
 
-    // })
+    })
 
-    // await promise3;
+    await promise4;
 
     startIndex -= mergeArray.length;
 

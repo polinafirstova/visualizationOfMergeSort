@@ -59,7 +59,7 @@ class Column {
         this._number = value;
         this.lineValue.style.height = (value * 100 / NUMBERS_COUNT) + "%";
 
-        if (NUMBERS_COUNT <= 100) {
+        if (NUMBERS_COUNT <= 20) {
 
             this.infoNumber.textContent = this.number;
 
@@ -100,6 +100,7 @@ class Code {
 
     }
 
+    // Установка номера строки
     set number(value) {
 
         this._number = value;
@@ -115,6 +116,7 @@ class Code {
 
     }
 
+    // Установка значения строки
     set text(value) {
 
         this._text = value;
@@ -130,12 +132,28 @@ class Code {
 
     }
 
+    // Добавление класса
+    setClass(status) {
+
+        this.string.classList.add(status);
+
+    }
+
+    // Удаление класса
+    resetClass(status) {
+
+        this.string.classList.remove(status);
+
+    }
+
 }
 
 // Создание элементов HTML
 const info = document.createElement('div'); // бокс с кнопками, количеством элементов и скоростью
 const boxContainer = document.createElement('div'); // обертка сортировки
 const code = document.createElement('div'); // бокс с кодом алгоритма
+const codePre = document.createElement('pre'); // обертка кода
+const codeCode = document.createElement('code'); // обертка кода
 const box = document.createElement('div'); // бокс для двух сортировок
 const upBox = document.createElement('div'); // бокс для дополнительной части массива
 const chartBox = document.createElement('div'); // бокс с сортировкой
@@ -195,21 +213,30 @@ function createSortBox(container, sortFunction) {
     speed.min = '0.25';
     numbersCount.max = '50';
     speed.max = '2';
-    // numbersCount.readOnly = true;
     speed.readOnly = true;
     numbersCount.type = 'number';
     speed.type = 'number';
     maxBtnNumberCount.textContent = '+';
     maxBtnSpeed.textContent = '+';
-    // code.textContent = 'qwertyuiop[]asdfghjkl;\nqwerty';
 
     // Уменьшение количества элементов в массиве
     minBtnNumberCount.addEventListener('click', function () {
 
-        if (numbersCount.value > 10) {
+        if (numbersCount.value > 10 && numbersCount.value <= 50) {
 
             numbersCount.value--;
+            NUMBERS_COUNT--;
             setNumbersCount();
+
+        } else if (numbersCount.value <= 10) {
+
+            numbersCount.value = 10;
+            NUMBERS_COUNT = numbersCount.value;
+
+        } else if (numbersCount.value > 50) {
+
+            numbersCount.value = 50;
+            NUMBERS_COUNT = numbersCount.value;
 
         }
 
@@ -229,10 +256,21 @@ function createSortBox(container, sortFunction) {
     // Увеличение количества элементов в массиве
     maxBtnNumberCount.addEventListener('click', function () {
 
-        if (numbersCount.value < 50) {
+        if (numbersCount.value >= 10 && numbersCount.value < 50) {
 
             numbersCount.value++;
+            NUMBERS_COUNT++;
             setNumbersCount();
+
+        } else if (numbersCount.value <= 10) {
+
+            numbersCount.value = 10;
+            NUMBERS_COUNT = numbersCount.value;
+
+        } else if (numbersCount.value > 50) {
+
+            numbersCount.value = 50;
+            NUMBERS_COUNT = numbersCount.value;
 
         }
 
@@ -246,6 +284,27 @@ function createSortBox(container, sortFunction) {
             speed.value = Number(speed.value) + 0.25;
 
         }
+
+    })
+
+    // Изменение количества элементов в массиве
+    numbersCount.addEventListener('input', () => {
+
+        if (numbersCount.value < 10) {
+
+            NUMBERS_COUNT = 10;
+
+        } else if (numbersCount.value > 50) {
+
+            NUMBERS_COUNT = 50;
+
+        } else {
+
+            NUMBERS_COUNT = numbersCount.value;
+
+        }
+
+        setNumbersCount();
 
     })
 
@@ -265,7 +324,9 @@ function createSortBox(container, sortFunction) {
     speedBox.append(maxBtnSpeed);
     info.append(btnBox);
     info.append(countBox);
-    // boxContainer.append(code);  
+    codePre.append(codeCode);
+    code.append(codePre);
+    boxContainer.append(code);
     box.append(upBox);
     box.append(chartBox);
     boxContainer.append(box);
@@ -309,50 +370,53 @@ function createSortBox(container, sortFunction) {
         });
 
         columnsUp.forEach(element => {
+
             element.setClass('up');
+
         })
 
     }
 
     mergeSortCode();
 
+    // Добавление кода сортировки на страницу
     function mergeSortCode() {
 
         stringsOfCode = [];
 
         i = 1;
 
-        stringsOfCode.push(new Code(code, i++, ".__split(array) {"));
-        stringsOfCode.push(new Code(code, i++, "._____if (array.length < 2) return array;"));
-        stringsOfCode.push(new Code(code, i++, "._____lengthArray1 = array.length / 2;"));
-        stringsOfCode.push(new Code(code, i++, "._____array1 = array.copy(0, lengthArray1);"));
-        stringsOfCode.push(new Code(code, i++, "._____array2 = array.copy(lengthArray1, -1);"));
-        stringsOfCode.push(new Code(code, i++, "._____left = mergeSort(array1)"));
-        stringsOfCode.push(new Code(code, i++, "._____right = mergeSort(array2"));
-        stringsOfCode.push(new Code(code, i++, "._____return merge(left, right);"));
-        stringsOfCode.push(new Code(code, i++, ".__}"));
-        stringsOfCode.push(new Code(code, i++, "._______________________________________________"));
-        stringsOfCode.push(new Code(code, i++, ".__merge(left, right) {"));
-        stringsOfCode.push(new Code(code, i++, "._____mergeArray = [];"));
-        stringsOfCode.push(new Code(code, i++, "._____while (left.length && right.length) {"));
-        stringsOfCode.push(new Code(code, i++, "._________if (left[0] < right[0]) {"));
-        stringsOfCode.push(new Code(code, i++, "._____________mergeArray.push(left.popFirst());"));
-        stringsOfCode.push(new Code(code, i++, "._________} else {"));
-        stringsOfCode.push(new Code(code, i++, "._____________mergeArray.push(right.popFirst());"));
-        stringsOfCode.push(new Code(code, i++, "._________}"));
-        stringsOfCode.push(new Code(code, i++, "._____}"));
-        stringsOfCode.push(new Code(code, i++, "._____if (left.length) {"));
-        stringsOfCode.push(new Code(code, i++, "._________while (left.length) {"));
-        stringsOfCode.push(new Code(code, i++, "._____________mergeArray.push(left.popFirst());"));
-        stringsOfCode.push(new Code(code, i++, "._________}"));
-        stringsOfCode.push(new Code(code, i++, "._____}"));
-        stringsOfCode.push(new Code(code, i++, "._____if (right.length) {"));
-        stringsOfCode.push(new Code(code, i++, "._________while (right.length) {"));
-        stringsOfCode.push(new Code(code, i++, "._____________mergeArray.push(right.popFirst());"));
-        stringsOfCode.push(new Code(code, i++, "._________}"));
-        stringsOfCode.push(new Code(code, i++, "._____}"));
-        stringsOfCode.push(new Code(code, i++, "._____return mergeArray;"));
-        stringsOfCode.push(new Code(code, i++, "._}"));
+        stringsOfCode.push(new Code(codeCode, i++, ".  split(array) {"));
+        stringsOfCode.push(new Code(codeCode, i++, ".     if (array.length < 2) return array;"));
+        stringsOfCode.push(new Code(codeCode, i++, ".     lengthArray1 = array.length / 2;"));
+        stringsOfCode.push(new Code(codeCode, i++, ".     array1 = array.copy(0, lengthArray1);"));
+        stringsOfCode.push(new Code(codeCode, i++, ".     array2 = array.copy(lengthArray1, -1);"));
+        stringsOfCode.push(new Code(codeCode, i++, ".     left = split(array1);"));
+        stringsOfCode.push(new Code(codeCode, i++, ".     right = split(array2);"));
+        stringsOfCode.push(new Code(codeCode, i++, ".     return merge(left, right);"));
+        stringsOfCode.push(new Code(codeCode, i++, ".  }"));
+        stringsOfCode.push(new Code(codeCode, i++, "."));
+        stringsOfCode.push(new Code(codeCode, i++, ". merge(left, right) {"));
+        stringsOfCode.push(new Code(codeCode, i++, ".    mergeArray = [];"));
+        stringsOfCode.push(new Code(codeCode, i++, ".    while (left.length && right.length) {"));
+        stringsOfCode.push(new Code(codeCode, i++, ".       if (left[0] < right[0]) {"));
+        stringsOfCode.push(new Code(codeCode, i++, ".          mergeArray.push(left.popFirst());"));
+        stringsOfCode.push(new Code(codeCode, i++, ".       } else {"));
+        stringsOfCode.push(new Code(codeCode, i++, ".          mergeArray.push(right.popFirst());"));
+        stringsOfCode.push(new Code(codeCode, i++, ".       }"));
+        stringsOfCode.push(new Code(codeCode, i++, ".    }"));
+        stringsOfCode.push(new Code(codeCode, i++, ".    if (left.length) {"));
+        stringsOfCode.push(new Code(codeCode, i++, ".       while (left.length) {"));
+        stringsOfCode.push(new Code(codeCode, i++, ".          mergeArray.push(left.popFirst());"));
+        stringsOfCode.push(new Code(codeCode, i++, ".       }"));
+        stringsOfCode.push(new Code(codeCode, i++, ".    }"));
+        stringsOfCode.push(new Code(codeCode, i++, ".    if (right.length) {"));
+        stringsOfCode.push(new Code(codeCode, i++, ".       while (right.length) {"));
+        stringsOfCode.push(new Code(codeCode, i++, ".          mergeArray.push(right.popFirst());"));
+        stringsOfCode.push(new Code(codeCode, i++, ".       }"));
+        stringsOfCode.push(new Code(codeCode, i++, ".    }"));
+        stringsOfCode.push(new Code(codeCode, i++, ".    return mergeArray;"));
+        stringsOfCode.push(new Code(codeCode, i++, ". }"));
 
     }
 
@@ -378,6 +442,7 @@ function createSortBox(container, sortFunction) {
             for (let i = 0; i < copyColumns.length; i++) {
 
                 columns[i].number = copyColumns[i];
+                columnsUp[i].number = copyColumns[i];
 
             }
 
@@ -410,10 +475,8 @@ function createSortBox(container, sortFunction) {
 
     })
 
-    // Задание количества колонок
+    // Задание количества элементов в массиве
     function setNumbersCount() {
-
-        NUMBERS_COUNT = document.getElementsByClassName("numbers-count")[0].value;
 
         chartBox.removeAttribute('style');
 
@@ -438,210 +501,206 @@ function setSpeed() {
 
 }
 
+// Поднять элементы наверх
+function changeUp(columns, columnsUp, i) {
+
+    columns.find(el => el.number === i).setClass('up');
+    columnsUp.find(el => el.number === i).resetClass('up');
+
+}
+
+// Опустить элементы вниз
+function changeUpBack(columns, columnsUp, i) {
+
+    columns.find(el => el.number === i).resetClass('up');
+    columnsUp.find(el => el.number === i).setClass('up');
+
+}
+
 // Разделение массива
 async function mergeSort(array, startIndex, columns, columnsUp) {
 
+    columns.forEach(element => {
+
+        element.resetClass('left');
+        element.resetClass('right');
+        element.resetClass('current');
+
+    });
+
+    stringsOfCode[5].resetClass('highlightCode');
+    stringsOfCode[6].resetClass('highlightCode');
+    stringsOfCode[7].resetClass('highlightCode');
+    stringsOfCode[10].resetClass('highlightCode');
+    stringsOfCode[0].setClass('highlightCode');
+
+    array.forEach(element => {
+
+        columns.find(el => el.number === element).setClass('current');
+
+    });
+
+    stringsOfCode[0].resetClass('highlightCode');
+
     const promise1 = new Promise((resolve) => {
 
-        array.forEach(element => {
-
-            columns.find(el => el.number === element).setClass('current');
-
-        });
+        stringsOfCode[1].setClass('highlightCode');
 
         setTimeout(() => {
 
             resolve();
 
-        }, setSpeed());
+        }, setSpeed() / 2);
 
     })
 
     await promise1;
 
-    if (array.length < 2) return array;
+    if (array.length < 2) {
 
-    const lengthArray1 = Math.trunc(array.length / 2);
-    const array1 = array.splice(0, lengthArray1);
+        stringsOfCode[1].resetClass('highlightCode');
+
+        return array;
+
+    }
+
+    stringsOfCode[1].resetClass('highlightCode');
 
     const promise2 = new Promise((resolve) => {
 
-        array1.forEach(element => {
-
-            columns.find(el => el.number === element).resetClass('current');
-
-        });
-
-        array.forEach(element => {
-
-            columns.find(el => el.number === element).resetClass('current');
-
-        });
-
-        setTimeout(() => {
-
-            resolve(mergeSort(array1, startIndex, columns, columnsUp));
-
-        }, setSpeed());
-
-    })
-
-    let left = await promise2;
-
-    const promise3 = new Promise((resolve) => {
-
-        array1.forEach(element => {
-
-            columns.find(el => el.number === element).resetClass('current');
-
-        });
-
-        array.forEach(element => {
-
-            columns.find(el => el.number === element).resetClass('current');
-
-        });
-
-        setTimeout(() => {
-
-            resolve(mergeSort(array, startIndex + lengthArray1, columns, columnsUp));
-
-        }, setSpeed());
-
-    })
-
-    let right = await promise3;
-
-    return merge(left, right, startIndex, columns, columnsUp);
-
-}
-
-function changeUp(columns, columnsUp, i) {
-    columns.find(el => el.number === i).setClass('up');
-    columnsUp.find(el => el.number === i).resetClass('up');
-}
-
-function changeUpBack(columns, columnsUp, i) {
-    columns.find(el => el.number === i).resetClass('up');
-    columnsUp.find(el => el.number === i).setClass('up');
-}
-
-// Слияние двух массивов
-async function merge(array1, array2, startIndex, columns, columnsUp) {
-
-    const promise1 = new Promise((resolve) => {
-
-        array1.forEach(element => {
-
-            columns.find(el => el.number === element).setClass('current');
-
-        });
-
-        array2.forEach(element => {
-
-            columns.find(el => el.number === element).setClass('current');
-
-        });
+        stringsOfCode[2].setClass('highlightCode');
 
         setTimeout(() => {
 
             resolve();
 
-        }, setSpeed());
+        }, setSpeed() / 2);
 
-    })
-
-    await promise1;
-    const promise2 = new Promise((resolve) => {
-
-        array1.forEach(element => {
-
-            changeUp(columns, columnsUp, element);
-
-        });
-
-        array2.forEach(element => {
-
-            changeUp(columns, columnsUp, element);
-
-        });
-        setTimeout(() => {
-
-            resolve();
-
-        }, setSpeed());
     })
 
     await promise2;
 
-    let mergeArray = [];
+    const lengthArray1 = Math.trunc(array.length / 2);
 
-    while (array1.length && array2.length) {
+    stringsOfCode[2].resetClass('highlightCode');
 
-        if (array1[0] < array2[0]) {
+    const array1 = array.splice(0, lengthArray1);
 
-            mergeArray.push(array1.shift());
+    stringsOfCode[3].setClass('highlightCode');
 
-        } else {
+    array1.forEach(element => {
 
-            mergeArray.push(array2.shift());
+        columns.find(el => el.number === element).setClass('left');
 
-        }
+    });
 
-    }
-
-    if (array1.length) {
-
-        while (array1.length) {
-
-            mergeArray.push(array1.shift());
-
-        }
-
-    }
-
-    if (array2.length) {
-
-        while (array2.length) {
-
-            mergeArray.push(array2.shift());
-
-        }
-
-    }
-
-    const promise3 = new Promise(async (resolve) => {
-
-        for (element in mergeArray) {
-            columns[startIndex].number = mergeArray[element];
-            startIndex++;
-        }
-        for (element in mergeArray) {
-            const pr = new Promise((resolve) => {
-                changeUpBack(columns, columnsUp, mergeArray[element]);
-                setTimeout(() => {
-                    resolve();
-                }, setSpeed());
-
-            });
-            await pr;
-        }
+    const promise3 = new Promise((resolve) => {
 
         setTimeout(() => {
 
             resolve();
 
-        }, setSpeed());
+        }, setSpeed() / 2);
 
     })
 
     await promise3;
 
+    stringsOfCode[3].resetClass('highlightCode');
+    stringsOfCode[4].setClass('highlightCode');
+
+    array.forEach(element => {
+
+        columns.find(el => el.number === element).setClass('right');
+
+    });
+
     const promise4 = new Promise((resolve) => {
 
-        mergeArray.forEach(element => {
+        setTimeout(() => {
 
-            columns.find(el => el.number === element).resetClass('current');
+            resolve();
+
+        }, setSpeed() / 2);
+
+    })
+
+    await promise4;
+
+    stringsOfCode[4].resetClass('highlightCode');
+    stringsOfCode[5].setClass('highlightCode');
+
+    const promise5 = new Promise((resolve) => {
+
+        setTimeout(() => {
+
+            resolve(mergeSort(array1, startIndex, columns, columnsUp));
+
+        }, setSpeed() / 2);
+
+    })
+
+    let left = await promise5;
+
+    stringsOfCode[5].resetClass('highlightCode');
+    stringsOfCode[6].setClass('highlightCode');
+
+    const promise6 = new Promise((resolve) => {
+
+        setTimeout(() => {
+
+            resolve(mergeSort(array, startIndex + lengthArray1, columns, columnsUp));
+
+        }, setSpeed() / 2);
+
+    })
+
+    let right = await promise6;
+
+    stringsOfCode[6].resetClass('highlightCode');
+
+    const promise7 = new Promise((resolve) => {
+
+        stringsOfCode[7].setClass('highlightCode');
+
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed() / 2);
+
+    })
+
+    await promise7;
+
+    return merge(left, right, startIndex, columns, columnsUp);
+
+}
+
+// Слияние двух массивов
+async function merge(array1, array2, startIndex, columns, columnsUp) {
+
+    stringsOfCode[0].resetClass('highlightCode');
+    stringsOfCode[5].resetClass('highlightCode');
+    stringsOfCode[6].resetClass('highlightCode');
+    stringsOfCode[7].resetClass('highlightCode');
+    stringsOfCode[10].setClass('highlightCode');
+
+    const promise1 = new Promise((resolve) => {
+
+        array1.forEach(element => {
+
+            columns.find(el => el.number === element).setClass('current');
+            columnsUp.find(el => el.number === element).resetClass('right');
+            columnsUp.find(el => el.number === element).setClass('left');
+
+        });
+
+        array2.forEach(element => {
+
+            columns.find(el => el.number === element).setClass('current');
+            columnsUp.find(el => el.number === element).resetClass('left');
+            columnsUp.find(el => el.number === element).setClass('right');
 
         });
 
@@ -649,16 +708,382 @@ async function merge(array1, array2, startIndex, columns, columnsUp) {
 
             resolve();
 
-        }, setSpeed());
+        }, setSpeed() / 2);
 
     })
 
-    await promise4;
+    await promise1;
 
-    startIndex -= mergeArray.length;
+    stringsOfCode[10].resetClass('highlightCode');
+    stringsOfCode[11].setClass('highlightCode');
+
+    const promise2 = new Promise((resolve) => {
+
+        array1.forEach(element => {
+
+            changeUp(columns, columnsUp, element);
+
+        });
+
+        array2.forEach(element => {
+
+            changeUp(columns, columnsUp, element);
+
+        });
+
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed() / 2);
+
+    })
+
+    await promise2;
+
+    stringsOfCode[11].resetClass('highlightCode');
+
+    let mergeArray = [];
+    let mergeArrayCopy = [];
+
+    while (array1.length && array2.length) {
+
+        const promise3 = new Promise((resolve) => {
+
+            stringsOfCode[12].setClass('highlightCode');
+
+            setTimeout(() => {
+
+                resolve();
+
+            }, setSpeed() / 2);
+
+        })
+
+        await promise3;
+
+        stringsOfCode[12].resetClass('highlightCode');
+
+        const promise4 = new Promise((resolve) => {
+
+            stringsOfCode[13].setClass('highlightCode');
+
+            setTimeout(() => {
+
+                resolve();
+
+            }, setSpeed() / 2);
+
+        })
+
+        await promise4;
+
+        stringsOfCode[13].resetClass('highlightCode');
+
+        if (array1[0] < array2[0]) {
+
+            const promise5 = new Promise((resolve) => {
+
+                stringsOfCode[14].setClass('highlightCode');
+
+                setTimeout(() => {
+
+                    resolve();
+
+                }, setSpeed() / 2);
+
+            })
+
+            await promise5;
+
+            mergeArray.push(array1.shift());
+            columns[startIndex].number = mergeArray.shift();
+            mergeArrayCopy.push(columns[startIndex].number);
+            changeUpBack(columns, columnsUp, columns[startIndex].number);
+            startIndex++;
+            stringsOfCode[14].resetClass('highlightCode');
+
+        } else {
+
+            const promise6 = new Promise((resolve) => {
+
+                stringsOfCode[15].setClass('highlightCode');
+
+                setTimeout(() => {
+
+                    resolve();
+
+                }, setSpeed() / 2);
+
+            })
+
+            await promise6;
+
+            mergeArray.push(array2.shift());
+            columns[startIndex].number = mergeArray.shift();
+            mergeArrayCopy.push(columns[startIndex].number);
+            changeUpBack(columns, columnsUp, columns[startIndex].number);
+            startIndex++;
+            stringsOfCode[15].resetClass('highlightCode');
+
+            const promise7 = new Promise((resolve) => {
+
+                stringsOfCode[16].setClass('highlightCode');
+
+                setTimeout(() => {
+
+                    resolve();
+
+                }, setSpeed() / 2);
+
+            })
+
+            await promise7;
+
+            stringsOfCode[16].resetClass('highlightCode');
+
+            const promise8 = new Promise((resolve) => {
+
+                stringsOfCode[17].setClass('highlightCode');
+                setTimeout(() => {
+
+                    resolve();
+
+                }, setSpeed() / 2);
+
+            })
+
+            await promise8;
+
+            stringsOfCode[17].resetClass('highlightCode');
+
+        }
+
+    }
+
+    const promise9 = new Promise((resolve) => {
+
+        stringsOfCode[18].setClass('highlightCode');
+
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed() / 2);
+
+    })
+
+    await promise9;
+
+    stringsOfCode[18].resetClass('highlightCode');
+
+    const promise10 = new Promise((resolve) => {
+
+        stringsOfCode[19].setClass('highlightCode');
+
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed() / 2);
+
+    })
+
+    await promise10;
+
+    stringsOfCode[19].resetClass('highlightCode');
+
+    if (array1.length) {
+
+        while (array1.length) {
+
+            const promise11 = new Promise((resolve) => {
+
+                stringsOfCode[20].setClass('highlightCode');
+
+                setTimeout(() => {
+
+                    resolve();
+
+                }, setSpeed() / 2);
+
+            })
+
+            await promise11;
+
+            stringsOfCode[20].resetClass('highlightCode');
+
+            const promise12 = new Promise((resolve) => {
+
+                stringsOfCode[21].setClass('highlightCode');
+
+                setTimeout(() => {
+
+                    resolve();
+
+                }, setSpeed() / 2);
+
+            })
+
+            await promise12;
+
+            mergeArray.push(array1.shift());
+            columns[startIndex].number = mergeArray.shift();
+            mergeArrayCopy.push(columns[startIndex].number);
+            changeUpBack(columns, columnsUp, columns[startIndex].number);
+            startIndex++;
+            stringsOfCode[21].resetClass('highlightCode');
+
+            const promise13 = new Promise((resolve) => {
+
+                stringsOfCode[22].setClass('highlightCode');
+
+                setTimeout(() => {
+
+                    resolve();
+
+                }, setSpeed() / 2);
+
+            })
+
+            await promise13;
+
+            stringsOfCode[22].resetClass('highlightCode');
+
+        }
+
+    }
+
+    const promise14 = new Promise((resolve) => {
+
+        stringsOfCode[23].setClass('highlightCode');
+
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed() / 2);
+
+    })
+
+    await promise14;
+
+    stringsOfCode[23].resetClass('highlightCode');
+
+    const promise15 = new Promise((resolve) => {
+
+        stringsOfCode[24].setClass('highlightCode');
+
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed() / 2);
+
+    })
+
+    await promise15;
+
+    stringsOfCode[24].resetClass('highlightCode');
+
+    if (array2.length) {
+
+        while (array2.length) {
+
+            const promise16 = new Promise((resolve) => {
+
+                stringsOfCode[25].setClass('highlightCode');
+
+                setTimeout(() => {
+
+                    resolve();
+
+                }, setSpeed() / 2);
+
+            })
+
+            await promise16;
+
+            stringsOfCode[25].resetClass('highlightCode');
+
+            const promise17 = new Promise((resolve) => {
+
+                stringsOfCode[26].setClass('highlightCode');
+
+                setTimeout(() => {
+
+                    resolve();
+
+                }, setSpeed() / 2);
+
+            })
+
+            await promise17;
+
+            mergeArray.push(array2.shift());
+            columns[startIndex].number = mergeArray.shift();
+            mergeArrayCopy.push(columns[startIndex].number);
+            changeUpBack(columns, columnsUp, columns[startIndex].number);
+            startIndex++;
+            stringsOfCode[26].resetClass('highlightCode');
+
+            const promise18 = new Promise((resolve) => {
+
+                stringsOfCode[27].setClass('highlightCode');
+
+                setTimeout(() => {
+
+                    resolve();
+
+                }, setSpeed() / 2);
+
+            })
+
+            await promise18;
+
+            stringsOfCode[27].resetClass('highlightCode');
+
+        }
+
+        const promise19 = new Promise((resolve) => {
+
+            stringsOfCode[28].setClass('highlightCode');
+
+            setTimeout(() => {
+
+                resolve();
+
+            }, setSpeed() / 2);
+
+        })
+
+        await promise19;
+
+        stringsOfCode[28].resetClass('highlightCode');
+
+    }
+
+    const promise20 = new Promise((resolve) => {
+
+        stringsOfCode[29].setClass('highlightCode');
+
+        setTimeout(() => {
+
+            resolve();
+
+        }, setSpeed() / 2);
+
+    })
+
+    await promise20;
+
+    stringsOfCode[29].resetClass('highlightCode');
+
+    startIndex -= mergeArrayCopy.length;
 
     let numbers = [];
     let i = 0;
+
     columns.forEach(element => {
 
         numbers.push(element.number);
@@ -669,7 +1094,7 @@ async function merge(array1, array2, startIndex, columns, columnsUp) {
 
     console.log(numbers);
 
-    return mergeArray;
+    return mergeArrayCopy;
 
 }
 
@@ -717,6 +1142,12 @@ document.addEventListener('DOMContentLoaded', function () {
         })
 
         await promise;
+
+        columns.forEach(element => {
+
+            element.resetClass('current');
+
+        });
 
         finishFlash(columns);
 
